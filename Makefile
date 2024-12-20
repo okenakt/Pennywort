@@ -23,7 +23,7 @@ ${nerd}: .env
 
 
 .PHONY: download
-download: ${hack} ${mgenplus}
+download: ${hack} ${mgenplus} ${nerd}
 
 .PHONY: build
 build: download
