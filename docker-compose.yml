@@ -1,8 +1,9 @@
-version: '3.2'
-
 services:
-  cica:
+  pennywort:
     build: .
+    image: pennywort
+    env_file:
+      - ./.env
     volumes:
-      - ./dist:/work/dist
-      - ./cica.py:/work/cica.py
+      - .:/app
+    command: make build

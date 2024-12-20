@@ -1,0 +1,56 @@
+{
+  "family_name": "Pennywort",
+  "style_name": "Bold",
+  "weight_name": "Bold",
+  "ascent": 810,
+  "descent": 270,
+  "upos": 45,
+  "os2_table": {
+    "os2_weight": 700,
+    "os2_width": 5,
+    "os2_stylemap": 32,
+    "os2_typoascent": 810,
+    "os2_typoascent_add": false,
+    "os2_typodescent": -270,
+    "os2_typodescent_add": false,
+    "os2_typolinegap": 0,
+    "os2_winascent": 810,
+    "os2_winascent_add": false,
+    "os2_windescent": 270,
+    "os2_windescent_add": false,
+    "hhea_ascent": 810,
+    "hhea_ascent_add": false,
+    "hhea_descent": -270,
+    "hhea_descent_add": false,
+    "hhea_linegap": 0,
+    "os2_panose": [2, 11, 5, 9, 3, 2, 2, 2, 2, 5]
+  },
+  "hack": {
+    "source": "Hack-Bold.ttf",
+    "config": {
+      "ascent": 810,
+      "descent": 270,
+      "width": 720,
+      "skew": 0,
+      "m_cutoff": 420
+    }
+  },
+  "mgenplus": {
+    "source": "mgenplus-1m-bold.ttf",
+    "config": {
+      "ascent": 810,
+      "descent": 270,
+      "half_width": 720,
+      "full_width": 1080,
+      "skew": 0
+    }
+  },
+  "nerd": {
+    "source": "NerdFont.ttf",
+    "config": {
+      "ascent": 810,
+      "descent": 270,
+      "width": 1080
+    }
+  }
+}
