@@ -1,15 +1,26 @@
 import argparse
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 import fontforge
+import psMat
 from dataclasses_json import DataClassJsonMixin
 from fontforge import font as Font
 
-from .utils import copy_glyph, fit, log
+from .utils import (
+    align_center,
+    copy_glyph,
+    get_box_mode,
+    get_max_box,
+    get_max_height,
+    get_max_width,
+    log,
+)
 
-ASCENT = 810
-DESCENT = 270
+FitTarget = Literal["max_width", "max_height"] | float
+HorizontalAlign = Literal["center"] | None
+VerticalAlign = Literal["max_top", "mode_bottom"] | None
 
 
 @dataclass(frozen=True)
@@ -21,6 +32,9 @@ class FontMap(DataClassJsonMixin):
 
     source: str
     glyph_maps: list[GlyphMap]
+    fit_target: FitTarget = "max_width"
+    halign: HorizontalAlign = "center"
+    valign: VerticalAlign = "mode_bottom"
 
     @classmethod
     def bulk_create(cls, kvs: list[dict]) -> list["FontMap"]:
@@ -82,6 +96,7 @@ GLYPH_SETS = FontMap.bulk_create(
                     "dst_start": 0xE300,
                 }
             ],
+            "fit_target": 2210,
         },
         {  # Octicons
             "source": "octicons/octicons.ttf",
@@ -112,6 +127,9 @@ GLYPH_SETS = FontMap.bulk_create(
                     "dst_start": 0xE0B0,
                 },
             ],
+            "fit_target": "max_height",
+            "halign": None,
+            "valign": "max_top",
         },
         {  # Powerline Extra Symbols
             "source": "powerline-extra/PowerlineExtraSymbols.otf",
@@ -133,6 +151,9 @@ GLYPH_SETS = FontMap.bulk_create(
                     "dst_start": 0xE0CC,
                 },
             ],
+            "fit_target": "max_height",
+            "halign": None,
+            "valign": "max_top",
         },
         {  # IEC Power Symbols
             "source": "Unicode_IEC_symbol_font.otf",
@@ -182,6 +203,98 @@ GLYPH_SETS = FontMap.bulk_create(
 )
 
 
+def modify(
+    font: Font,
+    target_ranges: list[tuple[int, int]],
+    ascent: int,
+    descent: int,
+    width: int,
+    fit_target: FitTarget,
+    halign: HorizontalAlign,
+    valign: VerticalAlign,
+) -> None:
+    glyphs = list(
+        {
+            font[unicode].unicode: font[unicode]
+            for start, stop in target_ranges
+            for unicode in range(start, stop + 1)
+            if unicode in font
+        }.values()
+    )
+
+    if fit_target == "max_width":
+        max_width = get_max_width(glyphs)
+        scale = width / max_width
+    elif fit_target == "max_height":
+        max_height = get_max_height(glyphs)
+        scale = (ascent + descent) / max_height
+    else:
+        scale = width / fit_target
+
+    if valign == "mode_bottom":
+        _, mode_bottom, _, _ = get_box_mode(glyphs)
+        shift = (0, -mode_bottom * scale)
+    else:
+        _, _, _, max_top = get_max_box(glyphs)
+        shift = (0, ascent - max_top * scale)
+
+    for glyph in glyphs:
+        glyph.transform(psMat.scale(scale))
+        glyph.transform(psMat.translate(*shift))
+        glyph.width = width
+        if halign == "center":
+            align_center(glyph)
+
+
+def build_nerd(source_fonts_dir: Path, ascent: int, descent: int, width: int) -> Font:
+    name = "NerdFont"
+    nerd = Font()
+    nerd.familyname = name
+    nerd.fontname = name
+    nerd.fullname = name
+    nerd.encoding = "UnicodeFull"
+    nerd.ascent = ascent
+    nerd.descent = descent
+    nerd.em = nerd.ascent + nerd.descent
+
+    for glyph_set in GLYPH_SETS:
+        src_font = fontforge.open(str(source_fonts_dir / glyph_set.source))
+
+        log(f"Modify {glyph_set.source}")
+        log(f"  fit_target: {glyph_set.fit_target}")
+        log(f"  halign: {glyph_set.halign}")
+        log(f"  valign: {glyph_set.valign}")
+        modify(
+            src_font,
+            [
+                (glyph_map.src_range[0], glyph_map.src_range[1])
+                for glyph_map in glyph_set.glyph_maps
+            ],
+            ascent,
+            descent,
+            width,
+            glyph_set.fit_target,
+            glyph_set.halign,
+            glyph_set.valign,
+        )
+
+        for glyph_map in glyph_set.glyph_maps:
+            start, stop = glyph_map.src_range
+            log(f"Copy {hex(start)}~{hex(stop)} -> {hex(glyph_map.dst_start)}~")
+
+            for i, src_unicode in enumerate(range(start, stop + 1)):
+                if src_unicode in src_font:
+                    copy_glyph(
+                        (src_font, src_unicode),
+                        (nerd, glyph_map.dst_start + i),
+                        replace=True,
+                    )
+
+        src_font.close()
+
+    return nerd
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Nerd generator.",
@@ -202,55 +315,36 @@ def parse_args() -> argparse.Namespace:
         default="./dist",
         help="Output destination.",
     )
+    parser.add_argument(
+        "--ascent",
+        type=int,
+        default=864,
+        help="Ascent.",
+    )
+    parser.add_argument(
+        "--descent",
+        type=int,
+        default=216,
+        help="Descent.",
+    )
+    parser.add_argument(
+        "--width",
+        type=int,
+        default=648,
+        help="Descent.",
+    )
 
     return parser.parse_args()
-
-
-def build_nerd(source_fonts_dir: Path) -> Font:
-    name = "NerdFont"
-    nerd = Font()
-    nerd.familyname = name
-    nerd.fontname = name
-    nerd.fullname = name
-    nerd.encoding = "UnicodeFull"
-    nerd.ascent = ASCENT
-    nerd.descent = DESCENT
-    nerd.em = nerd.ascent + nerd.descent
-    width = nerd.em
-
-    for glyph_set in GLYPH_SETS:
-        log(f"Merge {glyph_set.source}")
-        src_font = fontforge.open(str(source_fonts_dir / glyph_set.source))
-        src_font.ascent = nerd.ascent
-        src_font.descent = nerd.descent
-        src_font.em = nerd.em
-
-        for glyph_map in glyph_set.glyph_maps:
-            start, stop = glyph_map.src_range
-            log(f"Copy {hex(start)}~{hex(stop)} -> {hex(glyph_map.dst_start)}~")
-
-            for i, s in enumerate(range(start, stop + 1)):
-                if s in src_font:
-                    # ToDo: resize
-                    fit(src_font[s], width, nerd.ascent)
-                    copy_glyph(
-                        (src_font, s),
-                        (nerd, glyph_map.dst_start + i),
-                        replace=True,
-                    )
-
-        src_font.close()
-
-    return nerd
 
 
 if __name__ == "__main__":
     args = parse_args()
 
-    source_fonts_dir = Path(args.src_dir)
-
     log("Build Nerd Font")
-    nerd = build_nerd(source_fonts_dir)
+    log(f"  ascent: {args.ascent}")
+    log(f"  descent: {args.descent}")
+    log(f"  width: {args.width}")
+    nerd = build_nerd(Path(args.src_dir), args.ascent, args.descent, args.width)
 
     output_path = str(Path(args.dst_dir) / f"{nerd.fullname}.ttf")
     log(f"Generate {output_path}")

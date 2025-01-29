@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from fontforge import glyph as Glyph
 from fontTools.pens.basePen import BasePen
+from matplotlib.gridspec import GridSpec
 from matplotlib.patches import PathPatch as MplPathPatch
 from matplotlib.patches import Rectangle
 from matplotlib.path import Path as MplPath
@@ -35,10 +36,20 @@ class MplPathPen(BasePen):
         return MplPath(vertices, codes)
 
 
-def plot_glyphs(glyph_matrix: list[list[Glyph | None]]) -> None:
+def plot_glyphs(
+    glyph_matrix: list[list[Glyph | None]],
+    margin: float = 10.0,
+    magnify: float = 2.0,
+    fname: str | None = None,
+) -> None:
     nrows = len(glyph_matrix)
     ncols = max([len(row) for row in glyph_matrix])
-    fig, axes = plt.subplots(nrows, ncols)
+
+    plt.figure(
+        figsize=(ncols * magnify, nrows * magnify),
+        tight_layout=True,
+    )
+    gs = GridSpec(nrows, ncols)
 
     max_width = 0
     max_ascent = 0
@@ -48,7 +59,7 @@ def plot_glyphs(glyph_matrix: list[list[Glyph | None]]) -> None:
             if j >= len(glyph_matrix[i]) or glyph_matrix[i][j] is None:
                 continue
 
-            ax = axes if ncols == 1 else axes[j] if nrows == 1 else axes[i, j]
+            ax = plt.subplot(gs[i * ncols + j])
 
             glyph: Glyph = glyph_matrix[i][j]
             width = glyph.width
@@ -97,15 +108,18 @@ def plot_glyphs(glyph_matrix: list[list[Glyph | None]]) -> None:
 
     for i in range(nrows):
         for j in range(ncols):
-            ax = axes if ncols == 1 else axes[j] if nrows == 1 else axes[i, j]
+            ax = plt.subplot(gs[i * ncols + j])
 
             if i != nrows - 1:
                 ax.xaxis.set_ticklabels([])
             if j != 0:
                 ax.yaxis.set_ticklabels([])
 
-            ax.set_xlim(0, max_width)
-            ax.set_ylim(-max_descent, max_ascent)
+            ax.set_xlim(-margin, max_width + margin)
+            ax.set_ylim(-max_descent - margin, max_ascent + margin)
             ax.set_aspect("equal")
 
-    plt.show()
+    if fname:
+        plt.savefig(fname)
+    else:
+        plt.show()

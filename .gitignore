@@ -3,4 +3,5 @@ __pycache__
 tmp/*
 dist/*
 *.ttf
+*.html
 .DS_Store
