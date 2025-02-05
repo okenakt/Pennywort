@@ -25,7 +25,7 @@ class HackConfig(BaseConfig):
 
 
 @dataclass(frozen=True)
-class MgenplusConfig(BaseConfig):
+class BizudConfig(BaseConfig):
     visualize_zenkaku_space: bool
     baseline_shift: float
     weight: float
@@ -46,5 +46,5 @@ class Parameter(DataClassJsonMixin):
     upos: int
     os2_table: dict
     hack: HackConfig
-    mgenplus: MgenplusConfig
+    bizud: BizudConfig
     nerd: NerdConfig

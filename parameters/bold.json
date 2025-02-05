@@ -36,28 +36,17 @@
     "dot_zero": true,
     "broken_vline": true
   },
-  "mgenplus": {
-    "source": "mgenplus-1m-bold.ttf",
-    "shape_as": {
-      "ascent": 876,
-      "descent": 97,
-      "half_width": 374,
-      "full_width": 748
-    },
-    "visualize_zenkaku_space": true,
-    "baseline_shift": 41,
-    "weight": 12
-  },
   "bizud": {
     "source": "BIZUDGothic-Bold.ttf",
     "shape_as": {
-      "ascent": 1800,
+      "ascent": 1900,
       "descent": 195,
       "half_width": 819,
       "full_width": 1638
     },
-    "baseline_shift": 49,
-    "weight": 16
+    "visualize_zenkaku_space": true,
+    "baseline_shift": 98,
+    "weight": 28
   },
   "nerd": {
     "source": "NerdFont.ttf",

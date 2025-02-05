@@ -5,26 +5,26 @@ from .parameter import GlyphShape
 from .utils import copy_glyph, fit, resize_width
 
 
-def modify_zenkaku_space(mgenplus: Font) -> None:
+def modify_zenkaku_space(bizud: Font) -> None:
     space_unicode = 0x3000  # ideographic space
 
     copy_glyph(
-        (mgenplus, 0x2610),  # ballot box
-        (mgenplus, space_unicode),
+        (bizud, 0x25A1),  # white square
+        (bizud, space_unicode),
         replace=True,
     )
     copy_glyph(
-        (mgenplus, 0x271A),  # heavy greek cross
-        (mgenplus, space_unicode),
+        (bizud, 0x25C6),  # black diamond
+        (bizud, space_unicode),
     )
 
-    mgenplus.selection.select(space_unicode)
-    mgenplus.intersect()
-    mgenplus.selection.none()
+    bizud.selection.select(space_unicode)
+    bizud.intersect()
+    bizud.selection.none()
 
 
-def modify_mgenplus(
-    mgenplus: Font,
+def modify_bizud(
+    bizud: Font,
     shape_as: GlyphShape,
     shape_to: GlyphShape,
     skew: float = 0,
@@ -33,13 +33,13 @@ def modify_mgenplus(
     weight: float = 0,
 ) -> None:
     if visualize_zenkaku_space:
-        modify_zenkaku_space(mgenplus)
+        modify_zenkaku_space(bizud)
 
     # reshape
-    original_em = mgenplus.em
-    mgenplus.ascent = shape_as.ascent
-    mgenplus.descent = shape_as.descent
-    for glyph in mgenplus.glyphs():
+    original_em = bizud.em
+    bizud.ascent = shape_as.ascent
+    bizud.descent = shape_as.descent
+    for glyph in bizud.glyphs():
         if glyph.width > original_em / 2:
             source_width = shape_as.full_width
             target_width = shape_to.full_width
@@ -61,6 +61,6 @@ def modify_mgenplus(
 
     # italic
     if skew:
-        for glyph in mgenplus.glyphs():
+        for glyph in bizud.glyphs():
             if glyph.isWorthOutputting:
                 glyph.transform(psMat.skew(skew))

@@ -3,7 +3,7 @@ include .env
 tmp_dir := ./tmp
 params := $(wildcard ./parameters/*.json)
 hack := ${tmp_dir}/Hack-Regular.ttf ${tmp_dir}/Hack-Bold.ttf
-mgenplus := ${tmp_dir}/mgenplus-1m-regular.ttf ${tmp_dir}/mgenplus-1m-bold.ttf
+bizud := ${tmp_dir}/BIZUDGothic-Regular.ttf ${tmp_dir}/BIZUDGothic-Bold.ttf
 nerd_font_patcher := ${tmp_dir}/FontPatcher.zip
 nerd := ${tmp_dir}/NerdFont.ttf
 
@@ -26,11 +26,11 @@ ${hack}: .env
 	@cp ${tmp_dir}/hack/ttf/Hack-Regular.ttf ${tmp_dir}
 	@cp ${tmp_dir}/hack/ttf/Hack-Bold.ttf ${tmp_dir}
 
-${mgenplus}: .env
-	@curl -fsL https://ftp.iij.ad.jp/pub/osdn.jp/users/8/8597/mgenplus-${MGENPLUS_VERSION}.7z -o ${tmp_dir}/mgenplus.7z
-	@unar -f ${tmp_dir}/mgenplus.7z -o ${tmp_dir} 
-	@cp ${tmp_dir}/mgenplus/mgenplus-1m-regular.ttf ${tmp_dir}
-	@cp ${tmp_dir}/mgenplus/mgenplus-1m-bold.ttf ${tmp_dir}
+${bizud}: .env
+	@curl -fsL https://github.com/googlefonts/morisawa-biz-ud-gothic/releases/download/${BIZUD_VERSION}/BIZUDGothic.zip -o ${tmp_dir}/bizud.zip
+	@unar -f ${tmp_dir}/bizud.zip -o ${tmp_dir} 
+	@cp ${tmp_dir}/bizud/BIZUDGothic-Regular.ttf ${tmp_dir}
+	@cp ${tmp_dir}/bizud/BIZUDGothic-Bold.ttf ${tmp_dir}
 
 ${nerd_font_patcher}: .env
 	@curl -fsL https://github.com/ryanoasis/nerd-fonts/releases/download/${NERD_VERSION}/FontPatcher.zip -o ${tmp_dir}/FontPatcher.zip
@@ -46,7 +46,7 @@ nerd:
 	@make ${nerd}
 
 .PHONY: build
-build: ${hack} ${mgenplus} ${nerd}
+build: ${hack} ${bizud} ${nerd}
 	@$(foreach param, ${params}, \
 		python3 -m src.build_pennywort --src-dir ${tmp_dir} ${param}; \
 	)

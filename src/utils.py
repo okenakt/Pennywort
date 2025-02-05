@@ -18,6 +18,11 @@ def round_half_up(f: float, e: str = "0") -> Decimal:
     return Decimal(str(f)).quantize(Decimal(e), ROUND_HALF_UP)
 
 
+def calc_actual_size(glyph: Glyph) -> tuple[float, float]:
+    left, bottom, right, top = glyph.boundingBox()
+    return (right - left, top - bottom)
+
+
 def get_max_width(glyphs: list[Glyph]) -> float:
     max_width = 0
     for glyph in glyphs:
@@ -48,7 +53,7 @@ def get_max_box(glyphs: list[Glyph]) -> tuple[int, ...]:
     return xmin, ymin, xmax, ymax
 
 
-def get_box_mode(glyphs: list[Glyph]) -> tuple[int, ...]:
+def get_mode_box(glyphs: list[Glyph]) -> tuple[int, ...]:
     coords: list[tuple[int, ...]] = []
     for glyph in glyphs:
         coord = glyph.boundingBox()

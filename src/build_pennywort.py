@@ -6,8 +6,8 @@ from pathlib import Path
 import fontforge
 from fontforge import font as Font
 
+from .modify_bizud import modify_bizud
 from .modify_hack import modify_hack
-from .modify_mgenplus import modify_mgenplus
 from .parameter import Parameter
 from .utils import log, set_os2_table
 
@@ -30,16 +30,16 @@ def build_pennywort(parameter: Parameter, source_fonts_dir: Path) -> Font:
         parameter.hack.broken_vline,
     )
 
-    log("Modify Mgen+")
-    mgenplus = open_font(parameter.mgenplus.source)
-    modify_mgenplus(
-        mgenplus,
-        parameter.mgenplus.shape_as,
+    log("Modify BIZUD")
+    bizud = open_font(parameter.bizud.source)
+    modify_bizud(
+        bizud,
+        parameter.bizud.shape_as,
         parameter.shape_to,
         parameter.skew,
-        parameter.mgenplus.visualize_zenkaku_space,
-        parameter.mgenplus.baseline_shift,
-        parameter.mgenplus.weight,
+        parameter.bizud.visualize_zenkaku_space,
+        parameter.bizud.baseline_shift,
+        parameter.bizud.weight,
     )
 
     log("Load Nerd Font")
@@ -48,11 +48,11 @@ def build_pennywort(parameter: Parameter, source_fonts_dir: Path) -> Font:
     log("Merge fonts")
     pennywort = Font()
     pennywort.mergeFonts(hack)
-    pennywort.mergeFonts(mgenplus)
+    pennywort.mergeFonts(bizud)
     pennywort.mergeFonts(nerd)
 
     hack.close()
-    mgenplus.close()
+    bizud.close()
     nerd.close()
 
     log("Set attributes")
@@ -111,6 +111,6 @@ if __name__ == "__main__":
     log(f"Build {parameter.family_name}-{parameter.style_name}:{VERSION}")
     pennywort = build_pennywort(parameter, source_fonts_dir)
 
-    output_path = str(Path(args.dst_dir) / f"{pennywort.fullname.replace(' ', '')}.ttf")
+    output_path = str(Path(args.dst_dir) / f"{pennywort.fullname}.ttf")
     log(f"Generate {output_path}")
     pennywort.generate(output_path)

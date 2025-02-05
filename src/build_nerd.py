@@ -11,10 +11,10 @@ from fontforge import font as Font
 from .utils import (
     align_center,
     copy_glyph,
-    get_box_mode,
     get_max_box,
     get_max_height,
     get_max_width,
+    get_mode_box,
     log,
 )
 
@@ -232,7 +232,7 @@ def modify(
         scale = width / fit_target
 
     if valign == "mode_bottom":
-        _, mode_bottom, _, _ = get_box_mode(glyphs)
+        _, mode_bottom, _, _ = get_mode_box(glyphs)
         shift = (0, -mode_bottom * scale)
     else:
         _, _, _, max_top = get_max_box(glyphs)
