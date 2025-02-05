@@ -34,7 +34,7 @@
     },
     "m_cutoff": 400,
     "dot_zero": true,
-    "broken_vline": true
+    "broken_vline": false
   },
   "bizud": {
     "source": "BIZUDGothic-Regular.ttf",
