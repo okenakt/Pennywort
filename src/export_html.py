@@ -13,7 +13,7 @@ sample_sentences = [
     "あいうえおぱぴぷぺぽ",
     "アイウエオパピプペポ",
     "[]{}()<>=+-*/\|!?@#$%^&_,.:;'\"",
-    "　 全角スペース",
+    "0O 1Il| mrn 　←全角スペース",
     "Boost your 開発効率 by using a beautiful フォント designed for プログラミング.",
 ]
 
