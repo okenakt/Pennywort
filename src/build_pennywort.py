@@ -1,6 +1,5 @@
 import argparse
 import json
-import os
 from pathlib import Path
 
 import fontforge
@@ -9,12 +8,20 @@ from fontforge import font as Font
 from .modify_bizud import modify_bizud
 from .modify_hack import modify_hack
 from .parameter import Parameter
-from .utils import log, set_os2_table
+from .utils import append_sfnt_name, log, set_os2_table
 
-VERSION = os.getenv("VERSION", "v0.0.0")
+# Language IDs
+US = 0x0409  # en-US English (US)
+JP = 0x0411  # ja-JP Japanese
 
 
-def build_pennywort(parameter: Parameter, source_fonts_dir: Path) -> Font:
+def build_pennywort(
+    parameter: Parameter,
+    source_fonts_dir: Path,
+    version: str | None,
+    copyright_file: str | None,
+    license_url: str | None,
+) -> Font:
     def open_font(file_name: str) -> Font:
         return fontforge.open(str(source_fonts_dir / file_name))
 
@@ -55,16 +62,28 @@ def build_pennywort(parameter: Parameter, source_fonts_dir: Path) -> Font:
     bizud.close()
     nerd.close()
 
-    log("Set attributes")
-    pennywort.fontname = parameter.family_name
-    pennywort.familyname = parameter.family_name
+    log("Set properties")
+    family_name = parameter.family_name
+    style_name = parameter.style_name
+
+    pennywort.fontname = f"{family_name}-{style_name}".replace(" ", "")
+    pennywort.fullname = f"{family_name} {style_name}"
+    pennywort.familyname = family_name
     pennywort.weight = parameter.weight_name
-    pennywort.fullname = f"{parameter.family_name}-{parameter.style_name}"
     pennywort.ascent = parameter.shape_to.ascent
     pennywort.descent = parameter.shape_to.descent
     pennywort.upos = parameter.upos
-    pennywort.version = VERSION
+    if version is not None:
+        pennywort.version = version
 
+    # sfnt name table
+    append_sfnt_name(pennywort, [US], "SubFamily", style_name)
+    if copyright_file is not None:
+        append_sfnt_name(pennywort, [US, JP], "Copyright", open(copyright_file).read())
+    if license_url is not None:
+        append_sfnt_name(pennywort, [US, JP], "License URL", license_url)
+
+    # os2 table
     set_os2_table(
         pennywort,
         parameter.os2_table,
@@ -81,6 +100,9 @@ def parse_args() -> argparse.Namespace:
         usage="python -m pennywort"
         + "--src-dir /path/to/source_fonts"
         + "--dst-dir /path/to/destination"
+        + "--version {major}.{minor}"
+        + "--copyright-file /path/to/copyright"
+        + "--license-url https://github.com/you/project/license"
         + "/path/to/parameter/json",
     )
 
@@ -96,6 +118,24 @@ def parse_args() -> argparse.Namespace:
         default="./dist",
         help="Output destination.",
     )
+    parser.add_argument(
+        "--version",
+        type=str,
+        default="1.000",
+        help="Font version.",
+    )
+    parser.add_argument(
+        "--copyright-file",
+        type=str,
+        required=False,
+        help="Copyright file.",
+    )
+    parser.add_argument(
+        "--license-url",
+        type=str,
+        required=False,
+        help="License URL.",
+    )
     parser.add_argument("parameter_file", type=str, help="Path to parameter.json.")
 
     return parser.parse_args()
@@ -108,9 +148,15 @@ if __name__ == "__main__":
     with open(args.parameter_file) as f:
         parameter = Parameter.from_dict(json.load(f))
 
-    log(f"Build {parameter.family_name}-{parameter.style_name}:{VERSION}")
-    pennywort = build_pennywort(parameter, source_fonts_dir)
+    log(f"Build {parameter.family_name} {parameter.style_name} {args.version}")
+    pennywort = build_pennywort(
+        parameter,
+        source_fonts_dir,
+        args.version,
+        args.copyright_file,
+        args.license_url,
+    )
 
-    output_path = str(Path(args.dst_dir) / f"{pennywort.fullname}.ttf")
+    output_path = str(Path(args.dst_dir) / f"{pennywort.fontname}.ttf")
     log(f"Generate {output_path}")
     pennywort.generate(output_path)

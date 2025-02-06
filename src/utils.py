@@ -151,6 +151,16 @@ def draw_square(
     pen.closePath()
 
 
+def append_sfnt_name(
+    font: Font,
+    languages: list[int | str],
+    strid: int | str,
+    value: str,
+) -> None:
+    for lang in languages:
+        font.appendSFNTName(lang, strid, value)
+
+
 def set_os2_table(
     font: Font,
     os2_table: dict,

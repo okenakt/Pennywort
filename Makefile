@@ -1,11 +1,13 @@
 include .env
 
 tmp_dir := ./tmp
-params := $(wildcard ./parameters/*.json)
+# params := $(wildcard ./parameters/*.json)
+params := ./parameters/regular.json
 hack := ${tmp_dir}/Hack-Regular.ttf ${tmp_dir}/Hack-Bold.ttf
 bizud := ${tmp_dir}/BIZUDGothic-Regular.ttf ${tmp_dir}/BIZUDGothic-Bold.ttf
 nerd_font_patcher := ${tmp_dir}/FontPatcher.zip
 nerd := ${tmp_dir}/NerdFont.ttf
+license_url := https://github.com/okenakt/Pennywort/blob/main/LICENSE.txt
 
 define delete
     @if [ -d ${1} ]; then \
@@ -48,7 +50,12 @@ nerd:
 .PHONY: build
 build: ${hack} ${bizud} ${nerd}
 	@$(foreach param, ${params}, \
-		python3 -m src.build_pennywort --src-dir ${tmp_dir} ${param}; \
+		python3 -m src.build_pennywort \
+		--src-dir ${tmp_dir} \
+		--version ${VERSION} \
+		--copyright-file ./COPYRIGHT.txt \
+		--license-url ${license_url} \
+		${param}; \
 	)
 
 	@$(eval fonts := $(wildcard ./dist/*.ttf))

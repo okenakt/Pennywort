@@ -1,6 +1,6 @@
-# プログラミング用英和 2:3 フォント Pennywort
+# プログラミング用フォント Pennywort
 
-Hack, Mgen+, Nerd Fonts を英和 2:3 比で合成したプログラミングフォント
+Hack, BIZ UDGothic, Nerd Fonts を英和 2:3 比で合成したプログラミングフォント
 
 4 つのスタイルが含まれています．
 
@@ -11,8 +11,8 @@ Hack, Mgen+, Nerd Fonts を英和 2:3 比で合成したプログラミングフ
 
 ## スクリーンショット
 
-![](screenshots/pennywort.png)
+![](./previews/pennywort.png)
 
 ## ライセンス
 
-- [LICENSE.txt](LICENSE.txt)
+[LICENSE](./LICENSE.txt)
