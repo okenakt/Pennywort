@@ -2,7 +2,7 @@ import psMat
 from fontforge import font as Font
 
 from .parameter import GlyphShape
-from .utils import copy_glyph, fit, resize_width
+from .utils import copy_glyph, fit, remove_lookups, resize_width
 
 
 def modify_zenkaku_space(bizud: Font) -> None:
@@ -64,3 +64,5 @@ def modify_bizud(
         for glyph in bizud.glyphs():
             if glyph.isWorthOutputting:
                 glyph.transform(psMat.skew(skew))
+
+    remove_lookups(bizud)

@@ -1,8 +1,7 @@
 include .env
 
 tmp_dir := ./tmp
-# params := $(wildcard ./parameters/*.json)
-params := ./parameters/regular.json
+params := $(wildcard ./parameters/*.json)
 hack := ${tmp_dir}/Hack-Regular.ttf ${tmp_dir}/Hack-Bold.ttf
 bizud := ${tmp_dir}/BIZUDGothic-Regular.ttf ${tmp_dir}/BIZUDGothic-Bold.ttf
 nerd_font_patcher := ${tmp_dir}/FontPatcher.zip

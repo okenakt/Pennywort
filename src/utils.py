@@ -151,6 +151,27 @@ def draw_square(
     pen.closePath()
 
 
+def create_font(**kwargs: Any) -> Font:
+    font = Font()
+    for key, value in kwargs.items():
+        setattr(font, key, value)
+
+    return font
+
+
+def remove_lookups(
+    font: Font,
+    remove_gsub: bool = True,
+    remove_gpos: bool = True,
+) -> None:
+    if remove_gsub:
+        for lookup in font.gsub_lookups:
+            font.removeLookup(lookup)
+    if remove_gpos:
+        for lookup in font.gpos_lookups:
+            font.removeLookup(lookup)
+
+
 def append_sfnt_name(
     font: Font,
     languages: list[int | str],

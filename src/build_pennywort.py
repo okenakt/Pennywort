@@ -8,7 +8,7 @@ from fontforge import font as Font
 from .modify_bizud import modify_bizud
 from .modify_hack import modify_hack
 from .parameter import Parameter
-from .utils import append_sfnt_name, log, set_os2_table
+from .utils import append_sfnt_name, create_font, log, set_os2_table
 
 # Language IDs
 US = 0x0409  # en-US English (US)
@@ -18,7 +18,7 @@ JP = 0x0411  # ja-JP Japanese
 def build_pennywort(
     parameter: Parameter,
     source_fonts_dir: Path,
-    version: str | None,
+    version: str,
     copyright_file: str | None,
     license_url: str | None,
 ) -> Font:
@@ -53,7 +53,20 @@ def build_pennywort(
     nerd = open_font(parameter.nerd.source)
 
     log("Merge fonts")
-    pennywort = Font()
+    family_name = parameter.family_name
+    style_name = parameter.style_name
+    pennywort = create_font(
+        encoding="UnicodeFull",
+        fontname=f"{family_name}-{style_name}".replace(" ", ""),
+        fullname=f"{family_name} {style_name}",
+        familyname=family_name,
+        weight=parameter.weight_name,
+        ascent=parameter.shape_to.ascent,
+        descent=parameter.shape_to.descent,
+        upos=parameter.upos,
+        version=version,
+    )
+
     pennywort.mergeFonts(hack)
     pennywort.mergeFonts(bizud)
     pennywort.mergeFonts(nerd)
@@ -63,18 +76,6 @@ def build_pennywort(
     nerd.close()
 
     log("Set properties")
-    family_name = parameter.family_name
-    style_name = parameter.style_name
-
-    pennywort.fontname = f"{family_name}-{style_name}".replace(" ", "")
-    pennywort.fullname = f"{family_name} {style_name}"
-    pennywort.familyname = family_name
-    pennywort.weight = parameter.weight_name
-    pennywort.ascent = parameter.shape_to.ascent
-    pennywort.descent = parameter.shape_to.descent
-    pennywort.upos = parameter.upos
-    if version is not None:
-        pennywort.version = version
 
     # sfnt name table
     append_sfnt_name(pennywort, [US], "SubFamily", style_name)
