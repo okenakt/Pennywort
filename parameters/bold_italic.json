@@ -39,7 +39,7 @@
   "bizud": {
     "source": "BIZUDGothic-Bold.ttf",
     "shape_as": {
-      "ascent": 1900,
+      "ascent": 1880,
       "descent": 195,
       "half_width": 819,
       "full_width": 1638
@@ -53,8 +53,8 @@
     "shape_as": {
       "ascent": 864,
       "descent": 216,
-      "half_width": 648,
-      "full_width": 1296
+      "half_width": 432,
+      "full_width": 864
     }
   }
 }
