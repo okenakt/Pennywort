@@ -5,6 +5,13 @@ from fontforge import font as Font
 
 CELL_SIZE = 48
 NUM_COLUMNS = 16
+SAMPLE_FG_COLOR = "#D8D8D8"
+SAMPLE_BG_COLOR = "#181818"
+DEEP_SKY_BLUE_3 = "#0087AF"
+GREY_19 = "#303030"
+GREY_35 = "#585858"
+GREY_74 = "#BCBCBC"
+GREY_82 = "#D0D0D0"
 
 sample_sentences = [
     "abcdefghijklmnopqrstuvwxyz",
@@ -15,72 +22,92 @@ sample_sentences = [
     "[]{}()<>=+-*/\|!?@#$%^&_,.:;'\"",
     "0O 1Il| mrn 　←全角スペース",
     "Boost your 開発効率 by using a beautiful フォント designed for プログラミング.",
+    "".join(  # powerline
+        [
+            f"<span style='background-color: {DEEP_SKY_BLUE_3}; color: white;'> root </span>",
+            f"<span style='background-color: {GREY_19};'>",
+            f"<span style='color: {DEEP_SKY_BLUE_3};'></span>",
+            f"<span style='color: {GREY_74};'>  main </span>",
+            "</span>",
+            f"<span style='background-color: {GREY_35};'>",
+            f"<span style='color: {GREY_19};'></span>",
+            f"<span style='color: {GREY_74};'> ~  </span>",
+            f"<span style='color: {GREY_82};'>Powerline Ready </span>",
+            "</span>",
+            f"<span style='color: {GREY_35};'></span>",
+        ]
+    ),
 ]
 
-head_template = "\n".join(
-    [
-        "{indent}<head>",
-        "{indent}  <meta charset='UTF-8' />",
-        "{indent}  <style>",
-        "{indent}    @font-face {{",
-        "{indent}      font-family: '{font_family}';",
-        "{indent}      src: url('{font_path}');",
-        "{indent}    }}",
-        "{indent}    body {{",
-        "{indent}      font-family: '{font_family}';",
-        "{indent}    }}",
-        "{indent}    h1, h2 {{",
-        "{indent}      margin: 0px;",
-        "{indent}    }}",
-        "{indent}    .p-4 {{",
-        "{indent}      padding: 1rem;",
-        "{indent}    }}",
-        "{indent}  </style>",
-        "{indent}</head>",
-    ]
-)
-
-table_style_template = "\n".join(
+style_template = "\n".join(
     [
         "{indent}<style>",
+        "{indent}  @font-face {{",
+        "{indent}    font-family: '{font_family}';",
+        "{indent}    src: url('{font_path}');",
+        "{indent}  }}",
+        "{indent}  body {{",
+        "{indent}    font-family: '{font_family}';",
+        "{indent}  }}",
+        "{indent}  h1, h2 {{",
+        "{indent}    margin: 0;",
+        "{indent}  }}",
+        "{indent}  table {{",
+        "{indent}    width: 100%;",
+        "{indent}    border-spacing: 0;",
+        "{indent}  }}",
+        "{indent}  tr {{",
+        "{indent}    display: flex;",
+        "{indent}    justify-content: space-between;",
+        "{indent}    padding-bottom: 8px;",
+        "{indent}  }}",
         "{indent}  td {{",
-        "{indent}    padding-top: 4px;",
-        "{indent}    padding-bottom: 4px;",
+        "{indent}    padding-left: 0;",
+        "{indent}    padding-right: 0;",
+        "{indent}  }}",
+        "{indent}  .p-4 {{",
+        "{indent}    padding: 1rem;",
+        "{indent}  }}",
+        "{indent}  .sample-container {{",
+        "{indent}    color: {sample_foreground_color};",
+        "{indent}    background-color: {sample_background_color};",
+        "{indent}    margin: 1rem;",
+        "{indent}    padding: 0.5rem;",
         "{indent}  }}",
         "{indent}  .glyph-container {{",
         "{indent}    position: relative;",
-        "{indent}    width: {font_size}px;",
-        "{indent}    height: {font_size}px;",
+        "{indent}    width: {font_size};",
+        "{indent}    height: {font_size};",
         "{indent}    border-left: 1px solid gray;",
         "{indent}    border-right: 1px solid gray;",
         "{indent}  }}",
         "{indent}  .glyph {{",
-        "{indent}    margin: 0px auto;",
-        "{indent}    line-height: {font_size}px;",
-        "{indent}    font-size: {font_size}px;",
+        "{indent}    margin: 0 auto;",
+        "{indent}    line-height: {font_size};",
+        "{indent}    font-size: {font_size};",
         "{indent}    text-align: center;",
         "{indent}  }}",
-        "{indent}  .font-metrics {{",
+        "{indent}  .glyph-metrics {{",
         "{indent}    position: absolute;",
-        "{indent}    inset: 0px;",
-        "{indent}    width: {font_size}px;",
+        "{indent}    inset: 0;",
+        "{indent}    width: {font_size};",
         "{indent}    z-index: -1;",
         "{indent}  }}",
         "{indent}  .baseline {{",
-        "{indent}    top: {baseline}px;",
+        "{indent}    top: {baseline};",
         "{indent}    border-top: 1px solid gray;",
         "{indent}  }}",
         "{indent}  .ascent {{",
-        "{indent}    top: 0px;",
+        "{indent}    top: 0;",
         "{indent}    border-top: 1px solid green;",
         "{indent}  }}",
         "{indent}  .descent {{",
-        "{indent}    top: {font_size}px;",
+        "{indent}    top: {font_size};",
         "{indent}    border-top: 1px solid red;",
         "{indent}  }}",
         "{indent}  .width {{",
-        "{indent}    margin: 0px auto;",
-        "{indent}    height: {font_size}px;",
+        "{indent}    margin: 0 auto;",
+        "{indent}    height: {font_size};",
         "{indent}    border-left: solid blue;",
         "{indent}    border-right: solid blue;",
         "{indent}  }}",
@@ -93,10 +120,10 @@ td_template = "\n".join(
         "{indent}<td>",
         "{indent}  <div>{label}</div>",
         "{indent}  <div class='glyph-container'>",
-        "{indent}    <div class='font-metrics baseline'></div>",
-        "{indent}    <div class='font-metrics ascent'></div>",
-        "{indent}    <div class='font-metrics descent'></div>",
-        "{indent}    <div class='font-metrics width' style='width: {width}px; border-width: {border_width}px;'></div>",
+        "{indent}    <div class='glyph-metrics baseline'></div>",
+        "{indent}    <div class='glyph-metrics ascent'></div>",
+        "{indent}    <div class='glyph-metrics descent'></div>",
+        "{indent}    <div class='glyph-metrics width' style='width: {width}; border-width: {border_width};'></div>",
         "{indent}    <div class='glyph'>{text}</div>",
         "{indent}  </div>",
         "{indent}</td>",
@@ -104,17 +131,7 @@ td_template = "\n".join(
 )
 
 
-def create_glyph_table(font: Font, font_size: float, indent: str = "") -> str:
-    scale = font_size / font.em
-    table_lines = [
-        f"{indent}<table>",
-        table_style_template.format(
-            indent=f"{indent}  ",
-            font_size=font_size,
-            baseline=font.ascent * scale,
-        ),
-    ]
-
+def create_glyph_table(font: Font, indent: str = "") -> str:
     glyphs = sorted(
         [
             glyph
@@ -124,6 +141,7 @@ def create_glyph_table(font: Font, font_size: float, indent: str = "") -> str:
         key=lambda glyph: glyph.unicode,
     )
 
+    table_lines = [f"{indent}<table>"]
     i = 0
     prev_unicode = None
     for glyph in glyphs:
@@ -171,11 +189,11 @@ def create_glyph_table(font: Font, font_size: float, indent: str = "") -> str:
         # cuurent glyph
         table_lines.append(
             td_template.format(
-                indent="        ",
+                indent=f"{indent}    ",
                 label=hex(glyph.unicode),
                 text=f"&#{glyph.encoding};",
-                width=glyph.width * scale,
-                border_width=1,
+                width=f"{glyph.width / font.em * 100}%",
+                border_width="1px",
             )
         )
 
@@ -198,24 +216,30 @@ def export_html(font_path: str) -> None:
             [
                 "<!DOCTYPE html>",
                 "<html lang='en'>",
-                head_template.format(
+                "<head>",
+                "  <meta charset='UTF-8' />",
+                style_template.format(
                     indent="  ",
                     font_family=font.fontname,
                     font_path=font_path,
+                    font_size=f"{CELL_SIZE}px",
+                    baseline=f"{font.ascent / font.em * 100}%",
+                    sample_foreground_color=SAMPLE_FG_COLOR,
+                    sample_background_color=SAMPLE_BG_COLOR,
                 ),
                 "  <body>",
                 "    <h1>{title}</h1>".format(title=font.fullname),
                 "    <div class='p-4'>",
                 "    <div class='p-4'>",
                 "      <h2>Samples</h2>",
-                "      <div class='p-4'>",
+                "      <div class='sample-container'>",
                 *[f"        <div>{sentense}</div>" for sentense in sample_sentences],
                 "      </div>",
                 "    </div>",
                 "    <div class='p-4'>",
                 "      <h2>All Glyphs</h2>",
                 "      <div class='p-4'>",
-                create_glyph_table(font, CELL_SIZE, indent="        "),
+                create_glyph_table(font, indent="        "),
                 "      </div>",
                 "    </div>",
                 "    </div>",

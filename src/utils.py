@@ -41,7 +41,7 @@ def get_max_height(glyphs: list[Glyph]) -> float:
     return max_height
 
 
-def get_max_box(glyphs: list[Glyph]) -> tuple[int, ...]:
+def get_global_box(glyphs: list[Glyph]) -> tuple[int, ...]:
     xmin, ymin, xmax, ymax = 0, 0, 0, 0
     for glyph in glyphs:
         left, bottom, right, top = glyph.boundingBox()

@@ -7,11 +7,13 @@ import fontforge
 import psMat
 from dataclasses_json import DataClassJsonMixin
 from fontforge import font as Font
+from fontforge import glyph as Glyph
 
 from .utils import (
     align_center,
     copy_glyph,
-    get_max_box,
+    create_font,
+    get_global_box,
     get_max_height,
     get_max_width,
     get_mode_box,
@@ -20,7 +22,7 @@ from .utils import (
 
 FitTarget = Literal["max_width", "max_height"] | float
 HorizontalAlign = Literal["center"] | None
-VerticalAlign = Literal["max_top", "mode_bottom"] | None
+VerticalAlign = Literal["baseline", "top"] | None
 
 
 @dataclass(frozen=True)
@@ -34,7 +36,7 @@ class FontMap(DataClassJsonMixin):
     glyph_maps: list[GlyphMap]
     fit_target: FitTarget = "max_width"
     halign: HorizontalAlign = "center"
-    valign: VerticalAlign = "mode_bottom"
+    valign: VerticalAlign = "baseline"
 
     @classmethod
     def bulk_create(cls, kvs: list[dict]) -> list["FontMap"]:
@@ -129,7 +131,7 @@ GLYPH_SETS = FontMap.bulk_create(
             ],
             "fit_target": "max_height",
             "halign": None,
-            "valign": "max_top",
+            "valign": "top",
         },
         {  # Powerline Extra Symbols
             "source": "powerline-extra/PowerlineExtraSymbols.otf",
@@ -153,7 +155,7 @@ GLYPH_SETS = FontMap.bulk_create(
             ],
             "fit_target": "max_height",
             "halign": None,
-            "valign": "max_top",
+            "valign": "top",
         },
         {  # IEC Power Symbols
             "source": "Unicode_IEC_symbol_font.otf",
@@ -204,8 +206,7 @@ GLYPH_SETS = FontMap.bulk_create(
 
 
 def modify(
-    font: Font,
-    target_ranges: list[tuple[int, int]],
+    glyphs: list[Glyph],
     ascent: int,
     descent: int,
     width: int,
@@ -213,15 +214,6 @@ def modify(
     halign: HorizontalAlign,
     valign: VerticalAlign,
 ) -> None:
-    glyphs = list(
-        {
-            font[unicode].unicode: font[unicode]
-            for start, stop in target_ranges
-            for unicode in range(start, stop + 1)
-            if unicode in font
-        }.values()
-    )
-
     if fit_target == "max_width":
         max_width = get_max_width(glyphs)
         scale = width / max_width
@@ -231,16 +223,16 @@ def modify(
     else:
         scale = width / fit_target
 
-    if valign == "mode_bottom":
+    if valign == "baseline":
         _, mode_bottom, _, _ = get_mode_box(glyphs)
-        shift = (0, -mode_bottom * scale)
+        shift_y = -mode_bottom * scale
     else:
-        _, _, _, max_top = get_max_box(glyphs)
-        shift = (0, ascent - max_top * scale)
+        _, _, _, max_top = get_global_box(glyphs)
+        shift_y = ascent - max_top * scale
 
     for glyph in glyphs:
         glyph.transform(psMat.scale(scale))
-        glyph.transform(psMat.translate(*shift))
+        glyph.transform(psMat.translate((0, shift_y)))
         glyph.width = width
         if halign == "center":
             align_center(glyph)
@@ -248,28 +240,35 @@ def modify(
 
 def build_nerd(source_fonts_dir: Path, ascent: int, descent: int, width: int) -> Font:
     name = "NerdFont"
-    nerd = Font()
-    nerd.familyname = name
-    nerd.fontname = name
-    nerd.fullname = name
-    nerd.encoding = "UnicodeFull"
-    nerd.ascent = ascent
-    nerd.descent = descent
-    nerd.em = nerd.ascent + nerd.descent
+    nerd = create_font(
+        fontname=name,
+        fullname=name,
+        familyname=name,
+        encoding="UnicodeFull",
+        ascent=ascent,
+        descent=descent,
+    )
 
     for glyph_set in GLYPH_SETS:
         src_font = fontforge.open(str(source_fonts_dir / glyph_set.source))
+        glyphs = list(
+            {
+                src_font[unicode].unicode: src_font[unicode]
+                for start, stop in [
+                    glyph_map.src_range for glyph_map in glyph_set.glyph_maps
+                ]
+                for unicode in range(start, stop + 1)
+                if unicode in src_font
+            }.values()
+        )
 
         log(f"Modify {glyph_set.source}")
         log(f"  fit_target: {glyph_set.fit_target}")
+        log(f"  width: {width}")
         log(f"  halign: {glyph_set.halign}")
         log(f"  valign: {glyph_set.valign}")
         modify(
-            src_font,
-            [
-                (glyph_map.src_range[0], glyph_map.src_range[1])
-                for glyph_map in glyph_set.glyph_maps
-            ],
+            glyphs,
             ascent,
             descent,
             width,
@@ -330,7 +329,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--width",
         type=int,
-        default=648,
+        default=864,
         help="Descent.",
     )
 
@@ -346,6 +345,6 @@ if __name__ == "__main__":
     log(f"  width: {args.width}")
     nerd = build_nerd(Path(args.src_dir), args.ascent, args.descent, args.width)
 
-    output_path = str(Path(args.dst_dir) / f"{nerd.fullname}.ttf")
+    output_path = str(Path(args.dst_dir) / f"{nerd.fontname}.ttf")
     log(f"Generate {output_path}")
     nerd.generate(output_path)

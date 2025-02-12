@@ -49,17 +49,19 @@ def build_pennywort(
         parameter.bizud.weight,
     )
 
-    log("Load Nerd Font")
+    log("Modify Nerd Font")
     nerd = open_font(parameter.nerd.source)
+    for glyph in nerd.glyphs():
+        glyph.width = parameter.shape_to.half_width
 
     log("Merge fonts")
     family_name = parameter.family_name
     style_name = parameter.style_name
     pennywort = create_font(
-        encoding="UnicodeFull",
         fontname=f"{family_name}-{style_name}".replace(" ", ""),
         fullname=f"{family_name} {style_name}",
         familyname=family_name,
+        encoding="UnicodeFull",
         weight=parameter.weight_name,
         ascent=parameter.shape_to.ascent,
         descent=parameter.shape_to.descent,
@@ -67,9 +69,9 @@ def build_pennywort(
         version=version,
     )
 
+    pennywort.mergeFonts(nerd)  # Merge NerdFont first to prioritize its powerline glyph
     pennywort.mergeFonts(hack)
     pennywort.mergeFonts(bizud)
-    pennywort.mergeFonts(nerd)
 
     hack.close()
     bizud.close()
