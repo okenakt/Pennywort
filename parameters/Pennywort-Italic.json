@@ -1,19 +1,19 @@
 {
   "family_name": "Pennywort",
-  "style_name": "Bold Italic",
-  "weight_name": "Bold",
+  "style_name": "Italic",
+  "weight_name": "Regular",
   "shape_to": {
     "ascent": 864,
     "descent": 216,
-    "half_width": 648,
-    "full_width": 972
+    "half_width": 540,
+    "full_width": 1080
   },
   "skew": 0.25,
   "upos": 45,
   "os2_table": {
-    "os2_weight": 700,
+    "os2_weight": 400,
     "os2_width": 5,
-    "os2_stylemap": 33,
+    "os2_stylemap": 1,
     "os2_typoascent_add": false,
     "os2_typodescent_add": false,
     "os2_typolinegap": 0,
@@ -25,7 +25,7 @@
     "os2_panose": [2, 11, 5, 9, 3, 2, 2, 9, 2, 5]
   },
   "hack": {
-    "source": "Hack-Bold.ttf",
+    "source": "Hack-Regular.ttf",
     "shape_as": {
       "ascent": 1636,
       "descent": 270,
@@ -37,7 +37,7 @@
     "broken_vline": false
   },
   "bizud": {
-    "source": "BIZUDGothic-Bold.ttf",
+    "source": "BIZUDGothic-Regular.ttf",
     "shape_as": {
       "ascent": 1880,
       "descent": 195,
@@ -45,8 +45,8 @@
       "full_width": 1638
     },
     "visualize_zenkaku_space": true,
-    "baseline_shift": 98,
-    "weight": 28
+    "baseline_shift": 0,
+    "weight": 5
   },
   "nerd": {
     "source": "NerdFont.ttf",

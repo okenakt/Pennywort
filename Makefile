@@ -57,11 +57,9 @@ build: ${hack} ${bizud} ${nerd}
 		${param}; \
 	)
 
-	@$(eval fonts := $(wildcard ./dist/*.ttf))
-	@cd ./previews; $(foreach font, ${fonts}, \
-		$(eval name := $(subst ./dist/,,${font})) \
-		$(eval name := $(subst .ttf,,${name})) \
-		python3 ../src/export_html.py .${font} > ${name}.html; \
+	@cd ./previews; $(foreach param, ${params}, \
+ 		$(eval name := $(subst .json,,$(subst ./parameters/,,${param}))) \
+		 python3 ../src/export_html.py ../dist/${name}.ttf > ${name}.html; \
 	)
 
 .PHONY: shell

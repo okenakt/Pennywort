@@ -1,6 +1,6 @@
 {
-  "family_name": "Pennywort",
-  "style_name": "Regular",
+  "family_name": "Pennywort23",
+  "style_name": "Italic",
   "weight_name": "Regular",
   "shape_to": {
     "ascent": 864,
@@ -8,12 +8,12 @@
     "half_width": 648,
     "full_width": 972
   },
-  "skew": 0,
+  "skew": 0.25,
   "upos": 45,
   "os2_table": {
     "os2_weight": 400,
     "os2_width": 5,
-    "os2_stylemap": 64,
+    "os2_stylemap": 1,
     "os2_typoascent_add": false,
     "os2_typodescent_add": false,
     "os2_typolinegap": 0,
@@ -22,7 +22,7 @@
     "hhea_ascent_add": false,
     "hhea_descent_add": false,
     "hhea_linegap": 0,
-    "os2_panose": [2, 11, 5, 9, 3, 2, 2, 2, 2, 5]
+    "os2_panose": [2, 11, 5, 9, 3, 2, 2, 9, 2, 5]
   },
   "hack": {
     "source": "Hack-Regular.ttf",

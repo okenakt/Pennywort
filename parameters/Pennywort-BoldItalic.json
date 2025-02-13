@@ -1,0 +1,60 @@
+{
+  "family_name": "Pennywort",
+  "style_name": "Bold Italic",
+  "weight_name": "Bold",
+  "shape_to": {
+    "ascent": 864,
+    "descent": 216,
+    "half_width": 540,
+    "full_width": 1080
+  },
+  "skew": 0.25,
+  "upos": 45,
+  "os2_table": {
+    "os2_weight": 700,
+    "os2_width": 5,
+    "os2_stylemap": 33,
+    "os2_typoascent_add": false,
+    "os2_typodescent_add": false,
+    "os2_typolinegap": 0,
+    "os2_winascent_add": false,
+    "os2_windescent_add": false,
+    "hhea_ascent_add": false,
+    "hhea_descent_add": false,
+    "hhea_linegap": 0,
+    "os2_panose": [2, 11, 5, 9, 3, 2, 2, 9, 2, 5]
+  },
+  "hack": {
+    "source": "Hack-Bold.ttf",
+    "shape_as": {
+      "ascent": 1636,
+      "descent": 270,
+      "half_width": 1233,
+      "full_width": 2466
+    },
+    "m_cutoff": 400,
+    "dot_zero": true,
+    "broken_vline": false
+  },
+  "bizud": {
+    "source": "BIZUDGothic-Bold.ttf",
+    "shape_as": {
+      "ascent": 1880,
+      "descent": 195,
+      "half_width": 819,
+      "full_width": 1638
+    },
+    "visualize_zenkaku_space": true,
+    "baseline_shift": 0,
+    "weight": 12
+  },
+  "nerd": {
+    "source": "NerdFont.ttf",
+    "shape_as": {
+      "ascent": 864,
+      "descent": 216,
+      "half_width": 432,
+      "full_width": 864
+    }
+  }
+}
